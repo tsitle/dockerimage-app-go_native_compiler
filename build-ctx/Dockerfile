@@ -1,12 +1,11 @@
-FROM scratch
-
+ARG CF_DEBIAN_RELEASE
 ARG CF_DEBIAN_VERSION
-ARG CF_CPUARCH_DEB_ROOTFS
+ARG CF_CPUARCH_DEB_DIST
 
+FROM tsle/os-debian-${CF_DEBIAN_RELEASE}-${CF_CPUARCH_DEB_DIST}:${CF_DEBIAN_VERSION}
+
+#
 ENV DEBIAN_FRONTEND=noninteractive
-
-# add Debian root-fs
-ADD cache/debian_stretch/rootfs-debian_stretch_${CF_DEBIAN_VERSION}-${CF_CPUARCH_DEB_ROOTFS}.tar.xz /
 
 RUN \
 	apt-get update \
@@ -15,43 +14,11 @@ RUN \
 	&& apt-get -y --no-install-recommends install \
 			git \
 			build-essential \
-			nano \
-			less \
-			locales \
 			wget \
 			p7zip \
 			ca-certificates \
 			apt-transport-https \
-			gnupg2 \
-			curl
-
-# set locales
-RUN \
-	sed -i \
-			-e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' \
-			-e 's/# de_DE ISO-8859-1/de_DE ISO-8859-1/' \
-			-e 's/# de_DE@euro ISO-8859-15/de_DE@euro ISO-8859-15/' \
-			-e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' \
-			-e 's/# en_US ISO-8859-1/en_US ISO-8859-1/' \
-			-e 's/# en_US@euro ISO-8859-15/en_US@euro ISO-8859-15/' \
-			/etc/locale.gen \
-	&& dpkg-reconfigure --frontend=noninteractive locales \
-	&& update-locale LANG=de_DE.UTF-8
-
-ENV LANG de_DE.UTF-8
-ENV LANGUAGE de
-ENV LC_ALL de_DE.UTF-8
-
-# set up timezone
-ENV TZ=Europe/Berlin
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-#
-RUN \
-	chown root:root \
-			/root/.bashrc \
-	&& chmod 640 \
-			/root/.bashrc
+			gnupg2
 
 #
 ARG CF_GOLANG_VER
@@ -72,9 +39,6 @@ RUN \
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/root/app
 ENV PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-
-#
-COPY files/bash/dot_bashrc /root/.bashrc
 
 #
 RUN \

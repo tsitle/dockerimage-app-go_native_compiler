@@ -59,10 +59,6 @@ _getCpuArch debian_dist >/dev/null || exit 1
 
 # ----------------------------------------------------------
 
-cd build-ctx || exit 1
-
-# ----------------------------------------------------------
-
 function md5sum_poly() {
 	case "$OSTYPE" in
 		linux*) md5sum "$1" ;;
@@ -120,11 +116,10 @@ function _getCommonFile() {
 
 # ----------------------------------------------------------
 
-LVAR_GITHUB_BASE1="https://raw.githubusercontent.com/tsitle/docker_images_common_files/master"
-LVAR_GITHUB_BASE2="https://raw.githubusercontent.com/tsitle/go-binary_and_dockerimage-aarch64_armv7l_x86/master"
+LVAR_GITHUB_BASE="https://raw.githubusercontent.com/tsitle/go-binary_and_dockerimage-aarch64_armv7l_x86/master"
 
 LVAR_DEBIAN_DIST="$(_getCpuArch debian_dist)"
-LVAR_DEBIAN_RFS="$(_getCpuArch debian_rootfs)"
+LVAR_DEBIAN_RELEASE="stretch"
 LVAR_DEBIAN_VERSION="9.11"
 
 LVAR_GOLANG_VERSION="1.13.5"
@@ -132,14 +127,14 @@ LVAR_GOLANG_VERSION="1.13.5"
 LVAR_IMAGE_NAME="app-go_native_compiler-${LVAR_DEBIAN_DIST}"
 LVAR_IMAGE_VER="$LVAR_GOLANG_VERSION"
 
+# ----------------------------------------------------------
+
+cd build-ctx || exit 1
+
 [ ! -d cache ] && {
 	mkdir cache || exit 1
 }
 
-LVAR_GITHUB_BASE="$LVAR_GITHUB_BASE1"
-_getCommonFile "debian_stretch/rootfs-debian_stretch_${LVAR_DEBIAN_VERSION}-${LVAR_DEBIAN_RFS}.tar.xz" || exit 1
-
-LVAR_GITHUB_BASE="$LVAR_GITHUB_BASE2"
 LVAR_GOBIN_BN="binary/go${LVAR_GOLANG_VERSION}.linux-${LVAR_DEBIAN_DIST}.tar.7z"
 if [ ! -f "cache/${LVAR_GOBIN_BN}.001" ]; then
 	for TMP_FNR in {1..10}; do
@@ -156,9 +151,9 @@ if [ ! -f "cache/${LVAR_GOBIN_BN}.001" ]; then
 fi
 
 docker build \
-		--build-arg CF_CPUARCH_DEB_ROOTFS="$LVAR_DEBIAN_RFS" \
-		--build-arg CF_DEBIAN_VERSION="$LVAR_DEBIAN_VERSION" \
 		--build-arg CF_CPUARCH_DEB_DIST="$LVAR_DEBIAN_DIST" \
+		--build-arg CF_DEBIAN_RELEASE="$LVAR_DEBIAN_RELEASE" \
+		--build-arg CF_DEBIAN_VERSION="$LVAR_DEBIAN_VERSION" \
 		--build-arg CF_GOLANG_VER="$LVAR_GOLANG_VERSION" \
 		-t "$LVAR_IMAGE_NAME":"$LVAR_IMAGE_VER" \
 		.
