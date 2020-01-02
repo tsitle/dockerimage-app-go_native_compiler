@@ -9,9 +9,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN \
 	apt-get update \
-	&& apt-get --assume-yes upgrade \
-	&& apt-get --assume-yes dist-upgrade \
-	&& apt-get -y --no-install-recommends install \
+	&& apt-get upgrade -y \
+	&& apt-get dist-upgrade -y \
+	&& apt-get install -y --no-install-recommends \
 			git \
 			build-essential \
 			p7zip \
