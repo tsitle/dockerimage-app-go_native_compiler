@@ -14,9 +14,7 @@ RUN \
 	&& apt-get -y --no-install-recommends install \
 			git \
 			build-essential \
-			wget \
 			p7zip \
-			ca-certificates \
 			apt-transport-https \
 			gnupg2
 
